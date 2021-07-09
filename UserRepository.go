@@ -1,46 +1,64 @@
 package main
 
-func AddUser(newUser User, currentUsers []User) {
+// The append method creates a copy of the slice instead of directly adding a new element.
+// As a result, the copy with the new element will be returned.
+func AddUser(newUser User, currentUsers []User) []User {
 	currentUsers = append(currentUsers, newUser)
+	return currentUsers
 }
 
-//TODO: Find out how to only have 1 lookup method
 func LookupUserByMail(mail string, currentUsers []User) User {
 	var matchingIndex int
+	indexFound := false
 
 	for index, value := range currentUsers {
-		if value.mail == mail {
+		if value.Mail == mail {
 			matchingIndex = index
-		} else {
-			return User{}
+			indexFound = true
 		}
 	}
-	return currentUsers[matchingIndex]
+
+	if indexFound {
+		return currentUsers[matchingIndex]
+	} else {
+		return User{}
+	}
 }
 
 func LookupUserByID(ID int, currentUsers []User) User {
 	var matchingIndex int
+	indexFound := false
 
 	for index, value := range currentUsers {
 		if value.ID == ID {
 			matchingIndex = index
-		} else {
-			return User{}
+			indexFound = true
 		}
 	}
-	return currentUsers[matchingIndex]
+
+	if indexFound {
+		return currentUsers[matchingIndex]
+	} else {
+		return User{}
+	}
 }
 
-func DeleteUser(ID int, currentUsers []User) int {
+func RemoveUser(ID int, currentUsers []User) ([]User, bool) {
 	var matchingIndex int
+	indexFound := false
 
 	for index, value := range currentUsers {
 		if value.ID == ID {
 			matchingIndex = index
-		} else {
-			return -1
+			indexFound = true
 		}
 	}
-	currentUsers = append(currentUsers[:matchingIndex], currentUsers[matchingIndex+1:]...)
-	return 0
+
+	if indexFound {
+		currentUsers = append(currentUsers[:matchingIndex], currentUsers[matchingIndex+1:]...)
+		return currentUsers, true
+	} else {
+		return currentUsers, false
+	}
 }
+
