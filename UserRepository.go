@@ -1,7 +1,7 @@
 package main
 
-// The append method creates a copy of the slice instead of directly adding a new element.
-// As a result, the copy with the new element will be returned.
+// The append method creates a copy of the slice instead of directly adding a new element o the existing one.
+// By returning the new copy, the expected slice will be used by the program.
 func AddUser(newUser User, currentUsers []User) []User {
 	currentUsers = append(currentUsers, newUser)
 	return currentUsers
@@ -61,4 +61,3 @@ func RemoveUser(ID int, currentUsers []User) ([]User, bool) {
 		return currentUsers, false
 	}
 }
-

@@ -6,11 +6,14 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/mail"
 	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
+// Example lines
+/*
 func Handler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "Welcome to the HomePage!")
@@ -21,28 +24,56 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	// w.Write(response)
 	// fmt.Fprintf(w, "%+v", string(createdUser))
 }
+*/
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(Users)
 }
 
-//TODO: Add Regex verification for mail.
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	receivedUser, _ := ioutil.ReadAll(r.Body)
 	var newUser User
-	json.Unmarshal(receivedUser, &newUser) //Convert the JSON request body to an User struct
-	Users = AddUser(newUser, Users)
+	json.Unmarshal(receivedUser, &newUser) //Converting the JSON request body to an User struct
+	validEntry := false
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	fmt.Fprint(w, "User has been created successfully.")
+	if len(newUser.Mail) == 0 || len(newUser.Password) == 0 || newUser.Phone == 0 { //Checking if the User struct has the required values.
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "Not all field have been entered.")
+	} else {
+		validEntry = true
+	}
+
+	if validEntry { //The User struct has the required values.
+		if VerifyMail(newUser.Mail) {
+			Users = AddUser(newUser, Users)
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusCreated)
+			fmt.Fprint(w, "User has been created successfully.")
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprint(w, "A valid mailadress has not been entered.")
+		}
+	}
+}
+
+// Checking if the entered mail, has a valid RFC 5322 format.
+func VerifyMail(enteredMail string) bool {
+	_, err := mail.ParseAddress(enteredMail)
+	if err == nil {
+		return true
+	} else {
+		return false
+	}
 }
 
 func FindUserByID(w http.ResponseWriter, r *http.Request) {
-	routeValue := mux.Vars(r)
+	routeValue := mux.Vars(r) //Returning route values.
 	receivedID := routeValue["id"]
-	numericID, err := strconv.Atoi(receivedID)
+	numericID, err := strconv.Atoi(receivedID) //Checking if the uer input is a valid integer.
 	if err == nil {
 		tracedUser := LookupUserByID(numericID, Users)
 		if len(tracedUser.Password) != 0 {
@@ -51,36 +82,47 @@ func FindUserByID(w http.ResponseWriter, r *http.Request) {
 		} else {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusNotFound)
-			fmt.Fprint(w, "There is no user with that ID")
+			fmt.Fprint(w, "There is no user with that ID.")
 		}
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "A valid, numeric ID has not been send.")
 	}
 }
 
 func FindUserByMail(w http.ResponseWriter, r *http.Request) {
-	routeValue := mux.Vars(r)
+	routeValue := mux.Vars(r) //Returning route values.
 	receivedMail := routeValue["mail"]
-	tracedUser := LookupUserByMail(receivedMail, Users)
-	if len(tracedUser.Password) != 0 {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(tracedUser)
+
+	if VerifyMail(receivedMail) {
+		tracedUser := LookupUserByMail(receivedMail, Users)
+		if len(tracedUser.Password) != 0 {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(tracedUser)
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprint(w, "There is no user with that mailadress.")
+		}
 	} else {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "There is no user with that mailadress.")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "A valid mailadress has not been entered.")
 	}
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	routeValue := mux.Vars(r)
+	routeValue := mux.Vars(r) //Returning route values.
 	receivedID := routeValue["id"]
-	numericID, err := strconv.Atoi(receivedID)
+	numericID, err := strconv.Atoi(receivedID) //Checking if the uer input is a valid integer.
 	if err == nil {
 		removed := false
 		Users, removed = RemoveUser(numericID, Users)
 		if removed {
 			w.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(w, "User successfully deleted.")
-		} else if !removed {
+		} else {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusNotFound)
 			fmt.Fprint(w, "There is no user with that ID.")
@@ -88,7 +130,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "A valid numeric ID has not been send.")
+		fmt.Fprint(w, "A valid, numeric ID has not been send.")
 	}
 }
 
