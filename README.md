@@ -18,8 +18,6 @@ To run the application:
 1. Open a terminal window in the working directory. (Directory where the project is stored on the local system.)
 2. run the following command: `go run .`
 
-<br>
-
 ## Project structure
 
 `main.go`
