@@ -10,55 +10,13 @@ The application listens to port 8085, as configured by the following line
 log.Fatal(http.ListenAndServe(":8085", muxRouter))
 ```
 
-## Endpoints
-The following endpoints are available
+The file **API Documentation.md** contains the endpoints, expected request and return data of the application.
 
-* GET `/users`
-    * Retrieves all users.
-    * Does not require any parameter or body data.
-    * The data that is returned has the following format:
+To run the application:
+1. Open a terminal window in the working directory. (Directory where the project is stored on the local system.)
+2. run the following command: `go run .`
 
-| name      | datatype  |
-| ----------|:---------:|
-| ID        | string    |
-| mail      | string    |
-| phone     | int       |
-| password  | string    |
-
-An example of the data:
-
-![example of the data](https://i.imgur.com/QyzE1S1.png)
-
-<br/>
-
-* POST `/users`
-    * Creates a new user.
-    * Requires body data in the form of JSON. The data needs to be in the following format:
-
-| name      | datatype  |
-| ----------|:---------:|
-| mail      | string    |
-| phone     | int       |
-| password  | string    |
-
-<br/>
-
-An example of body data:
-
-![example of body data](https://i.imgur.com/DedmLx3.png)
-
-<br/>
-
-* GET `/users/{id}`
-    * Retrieves a single user, based on the given ID.
-    * Requires an ID value at the {id} placeholder. An example: `/users/reuRUE473`
-* GET `users/mail/{mail}`
-    * Retrieves a single user, based on the given mailadress.
-    * Requires a mailadress at the {mail} placeholder. An example: `/users/mail/dvorak@gmail.com`
-
-* DELETE `users/{id}`
-    * Deletes a user, based on the given ID.
-    * Requires an ID value at the {id} placeholder. An example: `/users/reuRUE473`
+<br>
 
 ## Project structure
 

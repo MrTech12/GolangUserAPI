@@ -11,20 +11,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Example lines
-/*
-func Handler(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Fprintf(w, "Welcome to the HomePage!")
-	fmt.Println("This is text")
-	// w.Header().Set("Content-Type", "application/json")
-	// w.WriteHeader(http.StatusOK)
-	// response, _ := json.Marshal(Users)
-	// w.Write(response)
-	// fmt.Fprintf(w, "%+v", string(createdUser))
-}
-*/
-
 func GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(Users)
