@@ -12,6 +12,8 @@ log.Fatal(http.ListenAndServe(":8085", muxRouter))
 
 The file **API Documentation.md** contains the endpoints, expected request and return data of the application.
 
+The application is build and runs on **go 1.16.5**.
+
 To run the application:
 1. Open a terminal window in the working directory. (Directory where the project is stored on the local system.)
 2. run the following command: `go run .`
